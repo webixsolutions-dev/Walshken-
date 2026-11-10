@@ -1,5 +1,5 @@
 import { adminAction } from "@/lib/walshken/admin";
-import { login } from "@/lib/walshken/auth";
+import { changePassword, login } from "@/lib/walshken/auth";
 import { documentAction, downloadDocument, meetingAction, messageAction, messagesFor, uploadDocument } from "@/lib/walshken/collaboration";
 import { checkOrigin, currentActor, database, endSession, fail, handleError, json, payload, pick, requireStaff } from "@/lib/walshken/server";
 import { view } from "@/lib/walshken/views";
@@ -27,13 +27,14 @@ export async function POST(request: Request, context: Context) {
   try {
     checkOrigin(request);
     const [area, action] = (await context.params).parts;
-    if(area==="session"&&action!=="logout") return await login(request,pick(action,["login","bootstrap","activate"],"access method"),await payload(request));
+    if(area==="session"&&!["logout","password"].includes(action)) return await login(request,pick(action,["login","bootstrap","activate"],"access method"),await payload(request));
     const db=database();
     const actor=await currentActor(db,request);
     if(!actor) return fail(401,"Sign in to your staff workspace.");
     if(area==="session"&&action==="logout") return await endSession(request,db,actor);
     if(area==="documents"&&action==="upload") return await uploadDocument(db,actor,request);
     const data=await payload(request);
+    if(area==="session"&&action==="password") return await changePassword(request,db,actor,data);
     if(["employees","organization","website","integrations","holidays"].includes(area)) return await adminAction(db,actor,area,action,data);
     if(["attendance","timesheets","shifts","leave","corrections"].includes(area)) return await timeAction(db,actor,area,action,data);
     if(["tasks","projects","notifications"].includes(area)) return await workAction(db,actor,area,action,data);

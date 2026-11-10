@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
 import { Icon } from "@/components/walshken/brand";
 import { PageHero } from "@/components/walshken/public-content";
 import { loadCatalog } from "@/lib/walshken/server";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "About Walshken", description: "Learn how Walshken brings its professional service divisions together." };
+export const metadata = publicMetadata("/about", "About Walshken",
+  "Learn how Walshken organizes professional services by division and country, and where to start with your inquiry.");
 
 const steps = [
   { icon: "services", title: "Choose a division", body: "Start with the type of support you need, whether it’s for your business or a personal plan.", href: "/services", label: "See our services" },
@@ -21,8 +22,8 @@ export default async function AboutPage() {
     </PageHero>
     <div className="public-wrap inner-section">
       <section className="about-story" aria-labelledby="about-story">
-        <div className="about-photo"><img src="/walshken-editorial-small.webp" width="720" height="480" loading="lazy"
-          alt="Three professionals in a working discussion in a daylight-filled city office"/></div>
+        <div className="about-photo"><img src="/walshken-colleagues.webp" width="960" height="640" loading="lazy"
+          alt="Three colleagues in conversation in a bright office atrium"/></div>
         <div><div className="section-kicker"><span/> HOW WALSHKEN IS ORGANIZED</div><h2 id="about-story">A starting point for your next step.</h2>
           <p>Every division has its own area of focus. The service directory helps you narrow down where to start, and the country pages show which divisions are available in your market.</p>
           <p>When your question spans more than one area, the contact page lets you describe the full situation in one place.</p>

@@ -1,14 +1,12 @@
-import type { Metadata } from "next";
+import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
 import { Icon } from "@/components/walshken/brand";
 import { PageHero, ServiceGrid } from "@/components/walshken/public-content";
 import { loadCatalog } from "@/lib/walshken/server";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = {
-  title: "Services",
-  description: "Explore Walshken’s professional service divisions and check availability in your country.",
-};
+export const metadata = publicMetadata("/services", "Services",
+  "Explore Walshken’s professional service divisions and check availability in your country.");
 
 export default async function ServicesPage() {
   const catalog = await loadCatalog();
@@ -21,6 +19,14 @@ export default async function ServicesPage() {
     <section id="divisions" className="public-wrap inner-section">
       <div className="section-lead"><div><div className="section-kicker"><span/> FIND YOUR DIVISION</div><h2>Start with what you need.</h2></div></div>
       <ServiceGrid services={catalog.services} contactCard/>
+      <section className="about-story service-story" aria-labelledby="services-next-step">
+        <div className="about-photo"><img src="/walshken-service-advisers.webp" width="960" height="640" loading="lazy"
+          alt="Two advisers reviewing project notes together"/></div>
+        <div><div className="section-kicker"><span/> YOUR NEXT STEP</div><h2 id="services-next-step">Find the right team for your question.</h2>
+          <p>Start with a division, then choose the country where you need help. If your question covers more than one service, send a general inquiry.</p>
+          <Link className="text-link story-link" href="/contact">Ask Walshken <Icon name="right" size={16}/></Link>
+        </div>
+      </section>
     </section>
   </>;
 }

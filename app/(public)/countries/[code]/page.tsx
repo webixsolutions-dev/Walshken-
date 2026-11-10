@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/walshken/brand";
 import { PageHero } from "@/components/walshken/public-content";
 import { InquiryForm } from "@/components/walshken/public-controls";
-import { contactPath, countryPath, findCountry, findService, type PublicQuery } from "@/lib/walshken/public-catalog";
+import { contactPath, countryPath, findCountry, findService, marketList, type PublicQuery } from "@/lib/walshken/public-catalog";
 import { loadCatalog } from "@/lib/walshken/server";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,11 @@ type Props = { params: Promise<{ code: string }>; searchParams: PublicQuery };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const country = findCountry((await params).code);
-  return country ? { title: `${country.name} service availability`, description: `Check Walshken’s services in ${country.name}.` } : { title: "Country unavailable" };
+  if (!country) return { title: "Country unavailable" };
+  const catalog = await loadCatalog();
+  const published = marketList(catalog).some((market) => market.code === country.code && market.enabled);
+  return publicMetadata(countryPath(country.code), `Professional services in ${country.name}`,
+    `Check Walshken’s service availability and contact options for ${country.name}.`, published);
 }
 
 export default async function CountryPage({ params, searchParams }: Props) {

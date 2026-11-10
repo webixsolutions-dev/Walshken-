@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { cache } from "react";
+import { publicMetadata } from "@/lib/walshken/seo";
 import { Icon } from "@/components/walshken/brand";
 import { CountryLinks, PageHero, serviceTopics } from "@/components/walshken/public-content";
 import { contactPath, findService, marketList } from "@/lib/walshken/public-catalog";
@@ -9,23 +9,24 @@ import { loadCatalog } from "@/lib/walshken/server";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ service: string }> };
-const readCatalog = cache(loadCatalog);
+
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const item = findService(await readCatalog(), (await params).service);
-  return item ? { title: item.name, description: item.description } : { title: "Service unavailable" };
+  const item = findService(await loadCatalog(), (await params).service);
+  return item ? publicMetadata(`/services/${encodeURIComponent(item.id)}`, item.name, item.description) : { title: "Service unavailable" };
 }
 
 export default async function ServicePage({ params }: Props) {
-  const catalog = await readCatalog();
+  const catalog = await loadCatalog();
   const item = findService(catalog, (await params).service);
   if (!item) notFound();
   const topics = serviceTopics[item.id];
+  const markets = marketList(catalog, item.id);
   return <>
     <PageHero label="SERVICE DIVISION" title={item.name} description={item.description} icon={item.icon}
       parent={{ label: "Services", href: "/services" }}>
       <Link className="btn btn-blue" href="#availability">Check availability <Icon name="right" size={17}/></Link>
-      <Link className="text-link" href={contactPath("CA", item.id)}>Ask about this service <Icon name="external" size={16}/></Link>
+      <Link className="text-link" href={contactPath(undefined, item.id)}>Ask about this service <Icon name="external" size={16}/></Link>
     </PageHero>
     <div className="public-wrap inner-section service-detail-grid">
       <section className="public-panel" aria-labelledby="service-topics">
@@ -38,8 +39,8 @@ export default async function ServicePage({ params }: Props) {
         <span className="icon-tile"><Icon name="globe" size={23}/></span>
         <h2 id="service-markets">Availability by country</h2>
         <p>See what’s available where you need support.</p>
-        <CountryLinks markets={marketList(catalog)} service={item.id}/>
-        <Link className="text-link" href={`/countries?service=${encodeURIComponent(item.id)}`}>Find another country <Icon name="right" size={16}/></Link>
+        {markets.length > 0 && <CountryLinks markets={markets} service={item.id}/>}
+        <Link className="text-link" href={`/countries?service=${encodeURIComponent(item.id)}`}>Search countries <Icon name="right" size={16}/></Link>
       </section>
     </div>
   </>;

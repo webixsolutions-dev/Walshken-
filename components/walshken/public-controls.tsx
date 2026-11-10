@@ -1,21 +1,21 @@
 "use client";
 
 import { useId, useState, type FormEvent, type KeyboardEvent } from "react";
-import { countries, countryName, searchCountries } from "@/lib/walshken/catalog";
+import { countries, searchCountries } from "@/lib/walshken/catalog";
 import type { SiteService } from "@/lib/walshken/public-catalog";
 import { Icon } from "./brand";
 
 const displayFlag = (code: string) => String.fromCodePoint(...[...code].map((letter) => letter.charCodeAt(0) + 127397));
 
-function CountrySearch({ value, onSelect }: { value: string; onSelect: (code: string) => void }) {
+function CountrySearch() {
   const id = useId();
-  const [query, setQuery] = useState(countryName(value));
+  const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  const choices = searchCountries(query === countryName(value) ? "" : query);
-  function select(code: string) { onSelect(code); setQuery(countryName(code)); setOpen(false); setActive(0); }
+  const choices = open ? searchCountries(query) : [];
+  function select(name: string) { setQuery(name); setOpen(false); setActive(0); }
   function key(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Escape") { setOpen(false); setQuery(countryName(value)); return; }
+    if (event.key === "Escape") { setOpen(false); return; }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       if (!open) { setActive(0); setOpen(true); return; }
@@ -26,23 +26,22 @@ function CountrySearch({ value, onSelect }: { value: string; onSelect: (code: st
     }
     if (event.key === "Enter" && open) {
       event.preventDefault();
-      if (choices[active]) select(choices[active].code);
+      if (choices[active]) select(choices[active].name);
     }
   }
   return <div className="country-search" onBlur={(event) => {
-    if (!event.currentTarget.contains(event.relatedTarget as Node)) { setOpen(false); setQuery(countryName(value)); }
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false);
   }}>
-    <input type="hidden" name="country" value={value}/>
     <label htmlFor={id}>Country or territory</label>
     <div className="explorer-field"><Icon name="globe" size={18}/><input id={id} role="combobox" aria-controls={open ? `${id}-list` : undefined} aria-expanded={open}
       aria-autocomplete="list" aria-activedescendant={open && choices[active] ? `${id}-${active}` : undefined}
-      placeholder="Search countries" autoComplete="off" value={query} onKeyDown={key}
+      name="country" required placeholder="Search countries" autoComplete="off" value={query} onKeyDown={key}
       onFocus={(event) => { setOpen(true); event.target.select(); }} onChange={(event) => { setQuery(event.target.value); setActive(0); setOpen(true); }}/>
       <Icon name="down" size={16}/></div>
     {open && <div className="country-options" id={`${id}-list`} role="listbox" aria-label="Countries and territories">
       {choices.length === 0 && <span className="option-empty">No matching countries</span>}
-      {choices.map((c, i) => <button type="button" id={`${id}-${i}`} role="option" aria-selected={c.code === value} tabIndex={-1}
-        className={i === active ? "highlighted" : ""} onMouseDown={(event) => event.preventDefault()} onClick={() => select(c.code)} key={c.code}>
+      {choices.map((c, i) => <button type="button" id={`${id}-${i}`} role="option" aria-selected={i === active} tabIndex={-1}
+        className={i === active ? "highlighted" : ""} onMouseDown={(event) => event.preventDefault()} onClick={() => select(c.name)} key={c.code}>
         <span>{displayFlag(c.code)} &nbsp;{c.name}</span><small>{c.code}</small>
       </button>)}
     </div>}
@@ -81,7 +80,7 @@ export function InquiryForm({ service, country, services, enabled, notify = fals
         <label>Work or personal email<input name="email" type="email" autoComplete="email" maxLength={254} required placeholder="you@example.com"/></label></div>
       <div className="fields-two"><label>Service<select name="service" defaultValue={service}><option value="">General inquiry</option>
         {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-        <label>Country<select name="country" defaultValue={country}>{countries.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}</select></label></div>
+        <label>Country<select name="country" required defaultValue={country}><option value="">Choose a country</option>{countries.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}</select></label></div>
       <label>How can we help?<textarea name="message" rows={4} required maxLength={2000} placeholder="Tell us what you’re looking for."/></label>
       <p className="form-note">Use this form for general inquiries. Keep personal records and documents private.</p>
       <button className="btn btn-blue" disabled={!enabled || sending}>{sending ? "Sending…" : "Send inquiry"}<Icon name="right" size={17}/></button>
@@ -94,7 +93,6 @@ export function InquiryForm({ service, country, services, enabled, notify = fals
 export function ServiceExplorer({ services, service = "", floating = false }: {
   services: SiteService[]; service?: string; floating?: boolean;
 }) {
-  const [country, setCountry] = useState("CA");
   const serviceId = useId();
 
   return <form id="explore" className={floating ? "explorer" : "explorer explorer-inline"} action="/countries" method="get">
@@ -105,7 +103,7 @@ export function ServiceExplorer({ services, service = "", floating = false }: {
         <option value="">All services</option>{services.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
       </select><Icon name="down" size={16}/></div>
     </div>
-    <CountrySearch value={country} onSelect={setCountry}/>
+    <CountrySearch/>
     <button className="btn btn-blue explorer-submit">View availability <Icon name="right" size={18}/></button>
   </form>;
 }

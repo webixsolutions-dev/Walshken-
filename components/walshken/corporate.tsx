@@ -1,33 +1,34 @@
 import Link from "next/link";
 import { Icon } from "./brand";
 import { ServiceExplorer } from "./public-controls";
-import { ServiceGrid } from "./public-content";
-import { countryPath, type SiteCatalog } from "@/lib/walshken/public-catalog";
+import { CountryLinks, ServiceGrid } from "./public-content";
+import { marketList, type SiteCatalog } from "@/lib/walshken/public-catalog";
+
+const steps = [
+  { icon: "services", title: "Choose a service", description: "Start with the kind of help you need." },
+  { icon: "globe", title: "Check your country", description: "See which services are available in your market." },
+  { icon: "message", title: "Tell us what you need", description: "Share a few details so your inquiry reaches the right team." },
+];
 
 export function Corporate({ catalog }: { catalog: SiteCatalog }) {
-  const [headline, last] = catalog.content.title === "Your global partner for professional services."
-    ? ["Your global partner for", "professional services."] : [catalog.content.title, ""];
-  const activeMarketCount = catalog.markets.filter((market) => market.enabled === 1).length;
+  const activeMarkets = marketList(catalog).filter((market) => market.enabled).slice(0, 4);
 
   return <>
     <section className="public-hero">
       <div className="public-wrap">
         <div className="hero-grid">
           <div className="hero-copy">
-            <div className="eyebrow hero-kicker"><span/> WALSHKEN PROFESSIONAL SERVICES</div>
-            <h1>{headline} {last && <em>{last}</em>}</h1>
+            <div className="eyebrow hero-kicker"><span/> GLOBAL PROFESSIONAL SERVICES</div>
+            <h1>{catalog.content.title}</h1>
             <p>{catalog.content.description}</p>
             <div className="hero-ctas">
-              <Link className="btn btn-blue" href="/services">Explore services <Icon name="right" size={18}/></Link>
-              <Link className="text-link" href="/about">About Walshken <Icon name="external" size={16}/></Link>
+              <Link className="btn btn-blue" href="#explore">Find a service <Icon name="right" size={18}/></Link>
             </div>
           </div>
           <div className="hero-visual">
-            <div className="hero-frame"><img src="/walshken-editorial.webp" srcSet="/walshken-editorial-small.webp 720w, /walshken-editorial.webp 1440w"
-              sizes="(max-width: 780px) 94vw, 52vw" width="1440" height="960" fetchPriority="high"
-              alt="Three professionals in a working discussion in a daylight-filled city office"/></div>
-            <div className="hero-photo-label"><span className="hero-label-icon"><Icon name="globe" size={24}/></span>
-              <span><strong>Built for a global reach</strong><small>Starting in Canada</small></span></div>
+            <div className="hero-frame"><img src="/walshken-consultation.webp" srcSet="/walshken-consultation-small.webp 720w, /walshken-consultation.webp 1440w"
+              sizes="(max-width: 780px) 94vw, (max-width: 1300px) 49vw, 610px" width="1440" height="960" fetchPriority="high"
+              alt="Three people reviewing their plans together in a daylight-filled office"/></div>
           </div>
         </div>
         <ServiceExplorer services={catalog.services} floating/>
@@ -35,31 +36,31 @@ export function Corporate({ catalog }: { catalog: SiteCatalog }) {
     </section>
     <section id="services" className="public-section public-wrap">
       <div className="section-lead">
-        <div><div className="section-kicker"><span/> OUR SERVICE DIVISIONS</div><h2>Find the right expertise.</h2></div>
-        <p>From running a business to planning your next move, start with the division that fits what you need.</p>
+        <div><div className="section-kicker"><span/> OUR SERVICE DIVISIONS</div><h2>What can we help you with?</h2></div>
+        <p>Explore the divisions that match your goals, from running a business to planning your next move.</p>
       </div>
       <ServiceGrid services={catalog.services} contactCard/>
     </section>
     <section id="countries" className="public-wrap market-wrap">
-      <div className="market-band">
-        <div className="market-copy"><div className="section-kicker"><span/> OUR MARKETS</div>
-          <h2>Starting in Canada.</h2><p>Check which services are available in your country and see where we’re expanding.</p>
-          <Link className="btn btn-white" href={countryPath("CA")}>Check Canada availability <Icon name="right" size={17}/></Link>
+      <div className="market-band market-global">
+        <div className="market-copy">
+          <div className="section-kicker"><span/> LOCAL AVAILABILITY</div>
+          <h2>Find services in your country.</h2>
+          <p>Availability depends on where you need support. Search your country to see current services, contact options, and launch updates.</p>
+          <Link className="btn btn-white" href="/countries">Explore countries <Icon name="right" size={17}/></Link>
         </div>
-        <div className="market-orbit"><span className="orbit orbit-1"/><span className="orbit orbit-2"/><span className="orbit orbit-3"/>
-          <div className="market-chip"><span className="market-flag" aria-hidden="true">🇨🇦</span>
-            <div><strong>Canada</strong><small>{activeMarketCount > 1 ? "First launch market" : "Initial launch market"}</small></div></div>
-        </div>
+        {activeMarkets.length ? <CountryLinks markets={activeMarkets}/> : <div className="market-globe" aria-hidden="true"><Icon name="globe" size={124}/></div>}
       </div>
     </section>
-    <section id="about" className="public-section public-wrap about-row">
-      <div><div className="section-kicker"><span/> ABOUT WALSHKEN</div><h2>One group, many specialties.</h2></div>
-      <div className="summary-copy"><p>{catalog.content.about}</p><Link className="text-link" href="/about">Learn about Walshken <Icon name="right" size={16}/></Link></div>
-    </section>
-    <section id="contact" className="contact-section">
-      <div className="public-wrap public-callout"><div><div className="section-kicker"><span/> CONTACT WALSHKEN</div>
-        <h2>Tell us what you’re looking for.</h2><p>Share a few details so your inquiry can reach the right division.</p></div>
-        <Link className="btn btn-blue" href="/contact">Contact us <Icon name="right" size={17}/></Link>
+    <section className="public-wrap inner-section home-next-steps" aria-labelledby="next-steps">
+      <div className="about-photo"><img src="/walshken-service-advisers.webp" width="960" height="640" loading="lazy"
+        alt="Two advisers working through a plan at a shared desk"/></div>
+      <div>
+        <div className="section-kicker"><span/> GETTING STARTED</div><h2 id="next-steps">From your question to the right team.</h2>
+        <ol className="journey-steps">{steps.map((step) => <li key={step.title}>
+          <span className="icon-tile"><Icon name={step.icon} size={21}/></span>
+          <span><strong>{step.title}</strong><small>{step.description}</small></span>
+        </li>)}</ol>
       </div>
     </section>
   </>;

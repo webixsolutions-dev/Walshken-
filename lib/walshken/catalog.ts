@@ -14,7 +14,7 @@ export function searchCountries(input: string) {
   return q ? countries.filter((country) =>
     country.code.toLowerCase() === q || country.alpha3.toLowerCase().startsWith(q) ||
     country.name.toLowerCase().includes(q),
-  ).sort((a,b)=>Number(b.name.toLowerCase().startsWith(q))-Number(a.name.toLowerCase().startsWith(q))) : [...countries.filter((c) => c.code === "CA"), ...countries.filter((c) => c.code !== "CA")];
+  ).sort((a,b)=>Number(b.name.toLowerCase().startsWith(q))-Number(a.name.toLowerCase().startsWith(q))) : countries;
 }
 
 export const divisions = [
@@ -28,9 +28,9 @@ export const divisions = [
 ] as const;
 
 export const homepage = {
-  title: "Your global partner for professional services.",
-  description: "Find the right professional support for your business, your plans and your next move. Explore seven service divisions through one connected group.",
-  about: "Walshken brings distinct professional service divisions together so people and businesses can find the right place to begin. We’re opening our Canadian market first and building a network that can grow country by country.",
+  title: "Find the right professional support, wherever you are.",
+  description: "Explore services for your business and personal plans. Choose what you need, check availability in your country, and get in touch with the right team.",
+  about: "Walshken brings specialist divisions together so people and businesses can find professional support in one place. Services and contact options are published by country as they become available.",
 };
 
 export const roles = ["super_admin", "admin", "hr", "manager", "employee", "guest"] as const;

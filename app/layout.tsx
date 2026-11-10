@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { metadataOrigin } from "@/lib/walshken/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: metadataOrigin,
   title: { default: "Walshken | Global Professional Services", template: "%s | Walshken" },
   description: "Explore Walshken professional services and find the right starting point in your country.",
   icons: { icon: "/favicon.svg" },

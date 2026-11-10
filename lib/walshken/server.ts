@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { workspaceDatabase, type Db } from "./database";
 export type { Db } from "./database";
 import type { SiteCatalog } from "./public-catalog";
@@ -134,23 +135,28 @@ export async function actorFor(db: Db, token: string): Promise<Actor | null> {
 export async function currentActor(db: Db, request: Request) {
   return actorFor(db, cookieValue(request.headers.get("cookie")));
 }
-export async function issueSession(request: Request, db: Db, actor: Actor) {
+export async function issueSession(request: Request, db: Db, actor: Actor, passwordHash: string) {
   const token = id() + id();
   const tokenHash = await digest(token);
   const started = now();
   const expiry = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString();
-  await db.batch([
-    stmt(db, "UPDATE employees SET activated_at=COALESCE(activated_at,?), last_login_at=? WHERE id=? AND status='Active'", started, started, actor.id),
-    stmt(db, "INSERT INTO sessions (id,employee_id,expires_at,agent) SELECT ?,id,?,? FROM employees WHERE id=? AND status='Active'",
-      tokenHash, expiry, (request.headers.get("user-agent") ?? "Browser").slice(0, 240), actor.id),
-    stmt(db, "INSERT INTO audit (id,org_id,actor_id,action,entity,target_id) SELECT ?,?,employee_id,'Signed in','session',NULL FROM sessions WHERE id=?", id(), actor.org_id, tokenHash),
-  ]);
+  await db.transaction(async (tx) => {
+    const credential = await one<{ password_hash: string }>(tx, "SELECT password_hash FROM credentials WHERE employee_id=? FOR UPDATE", actor.id);
+    if (credential?.password_hash !== passwordHash) return fail(401, "Sign in with your current password.");
+    await run(tx, "UPDATE employees SET activated_at=COALESCE(activated_at,?), last_login_at=? WHERE id=? AND status='Active'", started, started, actor.id);
+    await run(tx, "INSERT INTO sessions (id,employee_id,expires_at,agent) SELECT ?,id,?,? FROM employees WHERE id=? AND status='Active'",
+      tokenHash, expiry, (request.headers.get("user-agent") ?? "Browser").slice(0, 240), actor.id);
+    await run(tx, "INSERT INTO audit (id,org_id,actor_id,action,entity,target_id) SELECT ?,?,employee_id,'Signed in','session',NULL FROM sessions WHERE id=?", id(), actor.org_id, tokenHash);
+  });
   if (!await actorFor(db, token)) return fail(403, "This identity does not have active staff access.");
   return json({ ok: true }, 200, { "Set-Cookie": sessionSet(request, token, 43_200) });
 }
 export async function endSession(request: Request, db: Db, actor: Actor) {
   const tokenHash = await digest(cookieValue(request.headers.get("cookie")));
   await db.batch([stmt(db, "UPDATE sessions SET ended_at=? WHERE id=? AND employee_id=?", now(), tokenHash, actor.id), audit(db, actor, "Signed out", "session")]);
+  return expiredSession(request);
+}
+export function expiredSession(request: Request) {
   return json({ ok: true }, 200, { "Set-Cookie": sessionSet(request, "", 0) });
 }
 export const canSuper = (actor: Actor) => actor.role === "super_admin";
@@ -196,8 +202,8 @@ export async function throttle(db: Db, key: string, max: number, windowMs: numbe
   if (!hit || hit.hits > max) fail(429, "Too many requests. Please wait and try again.");
 }
 
-export async function loadCatalog(): Promise<SiteCatalog> {
-  const fallback: SiteCatalog = { services: [...divisions], markets: [{ code: "CA", enabled: 1, contact: "" }], availability: [], content: homepage };
+export const loadCatalog = cache(async (): Promise<SiteCatalog> => {
+  const fallback: SiteCatalog = { services: [...divisions], markets: [], availability: [], content: homepage };
   const db = workspaceDatabase();
   if (!db) return fallback;
   try {
@@ -208,11 +214,11 @@ export async function loadCatalog(): Promise<SiteCatalog> {
         JOIN services s ON s.id=a.service_id AND s.archived=0 JOIN markets m ON m.code=a.country AND m.enabled=1 WHERE a.enabled=1`),
       one<SiteCatalog["content"]>(db, "SELECT title,description,about FROM site_content WHERE id='home'"),
     ]);
-    return { services: content ? catalog : fallback.services, markets: markets.length ? markets : fallback.markets, availability, content: content ?? homepage, acceptsInquiries: true };
+    return { services: content ? catalog : fallback.services, markets, availability, content: content ?? homepage, acceptsInquiries: true };
   } catch {
     return fallback;
   }
-}
+});
 
 function base64(bytes: Uint8Array) { return btoa(String.fromCharCode(...bytes)); }
 function unbase64(value: string) { return Uint8Array.from(atob(value), (character) => character.charCodeAt(0)); }
