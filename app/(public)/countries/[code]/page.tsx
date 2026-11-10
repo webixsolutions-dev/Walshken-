@@ -1,3 +1,4 @@
+import { PublicShell } from "@/components/walshken/public-shell";
 import type { Metadata } from "next";
 import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
@@ -32,7 +33,7 @@ export default async function CountryPage({ params, searchParams }: Props) {
   const available = new Map(catalog.availability.filter((row) => row.country === country.code && row.enabled === 1)
     .map((row) => [row.service_id, row.destination]));
 
-  return <>
+  return <PublicShell services={catalog.services}>
     <PageHero label={active ? "SERVICE AVAILABILITY" : "COMING SOON"} title={country.name} icon="pin"
       parent={{ label: "Countries", href: "/countries" }}
       description={active ? `See current availability for ${selected?.name ?? "Walshken’s service divisions"} in ${country.name}.`
@@ -70,5 +71,5 @@ export default async function CountryPage({ params, searchParams }: Props) {
         <Link className="text-link" href={inquiry}>Send a general inquiry <Icon name="right" size={16}/></Link>
       </section>}
     </div>
-  </>;
+  </PublicShell>;
 }

@@ -1,3 +1,4 @@
+import { PublicShell } from "@/components/walshken/public-shell";
 import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
 import { Icon } from "@/components/walshken/brand";
@@ -10,7 +11,7 @@ export const metadata = publicMetadata("/services", "Services",
 
 export default async function ServicesPage() {
   const catalog = await loadCatalog();
-  return <>
+  return <PublicShell services={catalog.services}>
     <PageHero label="OUR DIVISIONS" title="Professional services" icon="services"
       description="Explore Walshken’s divisions for business, travel, education and more. Choose a service to see where it’s available and how to get in touch.">
       <Link className="btn btn-blue" href="#divisions">Browse divisions <Icon name="right" size={17}/></Link>
@@ -28,5 +29,5 @@ export default async function ServicesPage() {
         </div>
       </section>
     </section>
-  </>;
+  </PublicShell>;
 }

@@ -1,3 +1,4 @@
+import { PublicShell } from "@/components/walshken/public-shell";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -22,7 +23,7 @@ export default async function ServicePage({ params }: Props) {
   if (!item) notFound();
   const topics = serviceTopics[item.id];
   const markets = marketList(catalog, item.id);
-  return <>
+  return <PublicShell services={catalog.services}>
     <PageHero label="SERVICE DIVISION" title={item.name} description={item.description} icon={item.icon}
       parent={{ label: "Services", href: "/services" }}>
       <Link className="btn btn-blue" href="#availability">Check availability <Icon name="right" size={17}/></Link>
@@ -43,5 +44,5 @@ export default async function ServicePage({ params }: Props) {
         <Link className="text-link" href={`/countries?service=${encodeURIComponent(item.id)}`}>Search countries <Icon name="right" size={16}/></Link>
       </section>
     </div>
-  </>;
+  </PublicShell>;
 }

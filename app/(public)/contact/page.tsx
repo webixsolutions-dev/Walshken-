@@ -1,3 +1,4 @@
+import { PublicShell } from "@/components/walshken/public-shell";
 import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
 import { Icon } from "@/components/walshken/brand";
@@ -15,7 +16,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Publ
   const country = findCountry(query.country)?.code ?? "";
   const service = findService(catalog, query.service);
   const market = catalog.markets.find((item) => item.code === country && item.enabled === 1);
-  return <>
+  return <PublicShell services={catalog.services}>
     <PageHero label="CONTACT WALSHKEN" title="How can we help?" icon="mail"
       description="Tell us what you’re looking for. A few details about the service and your country help direct your inquiry."/>
     <div className="public-wrap inner-section contact-grid">
@@ -34,5 +35,5 @@ export default async function ContactPage({ searchParams }: { searchParams: Publ
         <InquiryForm key={`${country}-${service?.id ?? ""}`} country={country} service={service?.id ?? ""} services={catalog.services} enabled={catalog.acceptsInquiries === true}/>
       </section>
     </div>
-  </>;
+  </PublicShell>;
 }

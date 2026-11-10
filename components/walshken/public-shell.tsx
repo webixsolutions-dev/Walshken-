@@ -1,13 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { designPreviewEnabled } from "@/lib/walshken/preview";
-import { loadCatalog } from "@/lib/walshken/server";
+import type { SiteService } from "@/lib/walshken/public-catalog";
 import { Brand, Icon } from "./brand";
 import { PublicNav } from "./public-nav";
 
-export async function PublicShell({ children }: { children: ReactNode }) {
+export function PublicShell({ children, services }: { children: ReactNode; services: SiteService[] }) {
   const preview = designPreviewEnabled();
-  const { services } = await loadCatalog();
 
   return <>
     <a className="skip-link" href="#main">Skip to content</a>

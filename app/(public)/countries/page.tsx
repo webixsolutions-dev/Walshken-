@@ -1,3 +1,4 @@
+import { PublicShell } from "@/components/walshken/public-shell";
 import { publicMetadata } from "@/lib/walshken/seo";
 import { redirect } from "next/navigation";
 import { CountryLinks, PageHero } from "@/components/walshken/public-content";
@@ -15,7 +16,7 @@ export default async function CountriesPage({ searchParams }: { searchParams: Pu
   const service = findService(catalog, query.service);
   if (country) redirect(countryPath(country.code, service?.id));
   const markets = marketList(catalog, service?.id);
-  return <>
+  return <PublicShell services={catalog.services}>
     <PageHero label="OUR MARKETS" title="Countries & territories" icon="globe"
       description="Search by country name or ISO code to check services, local contact options, and launch updates."/>
     <div className="public-wrap inner-section">
@@ -27,5 +28,5 @@ export default async function CountriesPage({ searchParams }: { searchParams: Pu
           : <p className="catalog-empty">Search for your country to check availability or register for launch updates.</p>}
       </section>
     </div>
-  </>;
+  </PublicShell>;
 }
