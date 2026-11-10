@@ -1,6 +1,6 @@
 import { workspaceDatabase, type Db } from "./database";
 export type { Db } from "./database";
-import type { SiteCatalog } from "@/components/walshken/corporate";
+import type { SiteCatalog } from "./public-catalog";
 import { countries, divisions, homepage, type Role } from "./catalog";
 
 export class AppError extends Error {
@@ -208,7 +208,7 @@ export async function loadCatalog(): Promise<SiteCatalog> {
         JOIN services s ON s.id=a.service_id AND s.archived=0 JOIN markets m ON m.code=a.country AND m.enabled=1 WHERE a.enabled=1`),
       one<SiteCatalog["content"]>(db, "SELECT title,description,about FROM site_content WHERE id='home'"),
     ]);
-    return { services: content ? catalog : fallback.services, markets: markets.length ? markets : fallback.markets, availability, content: content ?? homepage };
+    return { services: content ? catalog : fallback.services, markets: markets.length ? markets : fallback.markets, availability, content: content ?? homepage, acceptsInquiries: true };
   } catch {
     return fallback;
   }

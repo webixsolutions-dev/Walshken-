@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { countryName, roleNames, taskStatuses, type Role } from "@/lib/walshken/catalog";
 import { Icon } from "./brand";
-import type { SiteCatalog } from "./corporate";
+import type { SiteCatalog } from "@/lib/walshken/public-catalog";
 import type { Viewer } from "./workspace";
 import { ActionForm, api, dateText, Disclosure, Empty, hours, initials, money, options, Panel, Quick, Status, Table, usePreview, useWorkspaceHref, value, type Field, type RecordRow } from "./ui";
 

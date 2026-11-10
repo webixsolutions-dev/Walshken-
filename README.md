@@ -4,7 +4,7 @@ Standalone corporate website and staff operations workspace built with Next.js, 
 
 ## Frontend review
 
-Open the corporate homepage at `/` and the read-only staff design preview at `/preview`. The preview has separate Admin and Employee views with sample records and uses no staff APIs. It is enabled on the frontend-only deployment and in local development.
+Open the corporate homepage at `/`, the service directory at `/services`, country availability at `/countries`, and the About and Contact pages at `/about` and `/contact`. Every published catalog entry has a division page, and every supported ISO country has a direct availability link. The read-only staff design preview is at `/preview`. The preview has separate Admin and Employee views with sample records and uses no staff APIs. It is enabled on the frontend-only deployment and in local development.
 
 ## Local development
 
