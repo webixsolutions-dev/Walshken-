@@ -1,3 +1,4 @@
+import { PublicShell } from "@/components/walshken/public-shell";
 import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
 import { Icon } from "@/components/walshken/brand";
@@ -15,9 +16,9 @@ const steps = [
 ];
 
 export default async function AboutPage() {
-  const { content } = await loadCatalog();
-  return <>
-    <PageHero label="ABOUT WALSHKEN" title="One group, many specialties." description={content.about} icon="building">
+  const catalog = await loadCatalog();
+  return <PublicShell services={catalog.services}>
+    <PageHero label="ABOUT WALSHKEN" title="One group, many specialties." description={catalog.content.about} icon="building">
       <Link className="btn btn-blue" href="/services">Explore our divisions <Icon name="right" size={17}/></Link>
     </PageHero>
     <div className="public-wrap inner-section">
@@ -37,5 +38,5 @@ export default async function AboutPage() {
         </article>)}</div>
       </section>
     </div>
-  </>;
+  </PublicShell>;
 }
