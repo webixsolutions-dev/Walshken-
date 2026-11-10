@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { publicMetadata } from "@/lib/walshken/seo";
 import Link from "next/link";
 import { Icon } from "@/components/walshken/brand";
 import { PageHero } from "@/components/walshken/public-content";
@@ -7,11 +7,12 @@ import { countryPath, findCountry, findService, type PublicQuery } from "@/lib/w
 import { loadCatalog } from "@/lib/walshken/server";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Contact", description: "Get in touch with Walshken and direct your question to the appropriate service division." };
+export const metadata = publicMetadata("/contact", "Contact Walshken",
+  "Tell Walshken what support you need and where. Choose a service division or send a general inquiry.");
 
 export default async function ContactPage({ searchParams }: { searchParams: PublicQuery }) {
   const [catalog, query] = await Promise.all([loadCatalog(), searchParams]);
-  const country = findCountry(query.country)?.code ?? "CA";
+  const country = findCountry(query.country)?.code ?? "";
   const service = findService(catalog, query.service);
   const market = catalog.markets.find((item) => item.code === country && item.enabled === 1);
   return <>
@@ -25,7 +26,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Publ
         </div>
         <div className="public-panel"><span className="icon-tile"><Icon name="globe" size={22}/></span><h2>Check local availability</h2>
           <p>{market?.contact || "See which services are listed in your country and check for local contact details."}</p>
-          <Link className="text-link" href={countryPath(country, service?.id)}>View country availability <Icon name="right" size={16}/></Link>
+          <Link className="text-link" href={country ? countryPath(country, service?.id) : "/countries"}>View country availability <Icon name="right" size={16}/></Link>
         </div>
       </aside>
       <section className="contact-form-shell" aria-labelledby="inquiry-heading">

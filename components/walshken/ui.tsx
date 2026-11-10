@@ -15,7 +15,7 @@ export type RecordRow = Record<string, string | number | null>;
 export type ResponseData = { ok?: boolean; message?: string; code?: string; error?: string; id?: string; url?: string };
 export type Field = {
   name: string; label: string; type?: string; options?: readonly (string | readonly [string,string])[];
-  value?: string | number | null; placeholder?: string; required?: boolean; min?: number; max?: number; multiple?: boolean;
+  value?: string | number | null; placeholder?: string; required?: boolean; min?: number; max?: number; multiple?: boolean; autoComplete?: string;
 };
 export const value = (row:RecordRow|undefined,key:string) => String(row?.[key] ?? "");
 export const initials = (name:string) => name.split(/\s+/).slice(0,2).map((part)=>part[0]?.toUpperCase()).join("") || "W";
@@ -62,8 +62,8 @@ export function FieldInput({field}:{field:Field}){
       {field.options.map((item)=>{const [key,label]=typeof item==="string"?[item,item]:item;return <option key={key} value={key}>{label}</option>;})}</select>
     :field.type==="textarea"?<textarea name={field.name} rows={3} defaultValue={String(field.value??"")} required={field.required} placeholder={field.placeholder} maxLength={field.max??3000}/>
     :<input name={field.name} type={field.type??"text"} required={field.required} defaultValue={field.value==null?undefined:field.value}
-      min={field.min} max={field.type==="number"?field.max:undefined} maxLength={field.type==="number"?undefined:field.max}
-      placeholder={field.placeholder} autoComplete={field.type==="password"?"new-password":undefined}/>}
+      min={field.type==="number"?field.min:undefined} minLength={field.type==="password"?field.min:undefined} max={field.type==="number"?field.max:undefined} maxLength={field.type==="number"?undefined:field.max}
+      placeholder={field.placeholder} autoComplete={field.autoComplete ?? (field.type==="password"?"new-password":undefined)}/>}
   </label>;
 }
 export function ActionForm({path,fields,submit,refresh,extra={},file=false,onDone,reset=true}:{
@@ -86,7 +86,7 @@ export function ActionForm({path,fields,submit,refresh,extra={},file=false,onDon
     }catch(e){setError(true);setStatus(e instanceof Error?e.message:"Please try again.");}
     finally{setBusy(false);}
   }
-  return <form className="staff-form" onSubmit={send}>
+  return <form className="staff-form" method="post" onSubmit={send}>
     <div className="staff-fields">{fields.map((field)=><FieldInput key={field.name} field={field}/>)}</div>
     <button className="btn btn-blue btn-small" disabled={busy||Boolean(preview)}>{busy?"Working…":submit}</button>
     {status&&<p className={error?"form-error":"form-success"} role="status">{status}</p>}

@@ -1,5 +1,4 @@
-import { divisions } from "@/lib/walshken/catalog";
-import { checkOrigin, country, database, email, fail, handleError, id, json, now, one, payload, pick, run, str, throttle } from "@/lib/walshken/server";
+import { checkOrigin, country, database, email, fail, handleError, id, json, loadCatalog, now, one, payload, pick, run, str, throttle } from "@/lib/walshken/server";
 
 export async function POST(request: Request) {
   try {
@@ -12,9 +11,9 @@ export async function POST(request: Request) {
     const service = str(data.service, "service", 100, false);
     const name = kind === "inquiry" ? str(data.name, "name", 100) : null;
     const message = kind === "inquiry" ? str(data.message, "message", 2000) : null;
-    await throttle(db, `public-ip:${request.headers.get("CF-Connecting-IP") ?? "local"}`, 20, 300_000);
+    await throttle(db, `public-ip:${request.headers.get("x-vercel-forwarded-for") ?? "local"}`, 20, 300_000);
     await throttle(db, `public-email:${mailbox}`, 5, 300_000);
-    if (service && !divisions.some((item) => item.id === service) && !await one(db, "SELECT id FROM services WHERE id=? AND archived=0", service)) {
+    if (service && !(await loadCatalog()).services.some((item) => item.id === service)) {
       fail(400, "Choose a listed service.");
     }
     if (kind === "interest" && await one(db, "SELECT id FROM inquiries WHERE kind='interest' AND email=? AND country=? AND service IS NOT DISTINCT FROM ?", mailbox, market, service || null)) return json({ ok: true });

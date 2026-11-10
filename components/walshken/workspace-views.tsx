@@ -293,13 +293,20 @@ export function WorkspaceViews({section,actor,data,refresh}:{section:string;acto
     const tenure=row.hire_date?Math.max(0,Math.floor((Date.now()-Date.parse(String(row.hire_date)))/86400_000)):null;
     const attributes=[
       ["Work email",row.email],["Employee ID",row.employee_no],["Role",roleNames[value(row,"role") as Role]],["Position",row.title],["Department",row.department],
-      ["Division",row.division],["Office",row.office],["Country",countryName(value(row,"country"))],["Employment jurisdiction",row.jurisdiction],
+      ["Division",row.division],["Office",row.office],["Country",row.country==="ZZ"?null:countryName(value(row,"country"))],["Employment jurisdiction",row.jurisdiction],
       ["Manager",row.manager],["Employment type",row.employment_type],["Hire date",dateText(row.hire_date)],["Length of service",tenure===null?null:`${tenure} days`],
       ["Contract start",dateText(row.contract_start)],["Account created",dateText(row.created_at)],["Account activated",dateText(row.activated_at)],
       ["Last sign-in",dateText(row.last_login_at,true,actor.timeZone)],["Work time zone",row.time_zone],["Expected weekly hours",row.expected_hours],["Break policy",row.break_policy],
     ];
     return <><Panel title="Employment details"><div className="profile-summary"><span className="avatar avatar-large">{initials(actor.name)}</span><div><h3>{actor.name}</h3><p>{row.title||roleNames[actor.role]}</p></div></div>
       <dl className="profile-grid">{attributes.map(([name,item])=><div key={name}><dt>{name}</dt><dd>{item??"—"}</dd></div>)}</dl></Panel>
+      <Panel title="Change password" note="Saving a new password signs you out on every device.">
+        <ActionForm path="session/password" fields={[
+          {name:"currentPassword",label:"Current password",type:"password",required:true,max:160,autoComplete:"current-password"},
+          {name:"newPassword",label:"New password",type:"password",required:true,min:12,max:160},
+          {name:"confirmPassword",label:"Confirm new password",type:"password",required:true,min:12,max:160},
+        ]} submit="Update password" onDone={() => window.location.assign("/staff")}/>
+      </Panel>
       <Panel title="Recent sessions"><Table rows={data.sessions??[]} columns={[dateColumn("created_at","Started",true,actor.timeZone),dateColumn("ended_at","Ended",true,actor.timeZone),column("agent","Device information")]}/></Panel></>;
   }
   return <Empty/>;

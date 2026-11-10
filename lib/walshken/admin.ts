@@ -32,8 +32,8 @@ export async function adminAction(db: Db, actor: Actor, area: string, action: st
           employment_type,hire_date,contract_start,phone,expected_hours,break_policy,leave_days)
           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, target, actor.org_id, str(data.employeeNo,"employee ID",40),
           str(data.name,"employee name",100), email(data.email), role, str(data.title,"job title",100,false), department || null,
-          division || null, office || null, manager || null, country(data.country || "CA"), str(data.jurisdiction || "CA-AB","jurisdiction",30),
-          timeZone(data.timeZone || "America/Edmonton"), pick(data.employmentType || "Full-time",types,"employment type"),
+          division || null, office || null, manager || null, country(data.country), str(data.jurisdiction,"jurisdiction",30),
+          timeZone(data.timeZone), pick(data.employmentType || "Full-time",types,"employment type"),
           date(data.hireDate,"hire date",false), date(data.contractStart,"contract start date",false), str(data.phone,"phone number",40,false) || null,
           integer(data.expectedHours || "40","expected weekly hours",0,80), pick(data.breakPolicy || "unpaid",["paid","unpaid"],"break policy"),
           data.leaveDays ? integer(data.leaveDays,"leave days",0,365) : null),
@@ -78,8 +78,8 @@ export async function adminAction(db: Db, actor: Actor, area: string, action: st
     const kind = pick(data.kind, ["Department","Division","Office"], "organization unit type");
     await db.batch([
       stmt(db,"INSERT INTO units (id,org_id,kind,name,country,region,time_zone) VALUES (?,?,?,?,?,?,?)",
-        target,actor.org_id,kind,str(data.name,"name",100),kind==="Office"?country(data.country||"CA"):null,
-        kind==="Office"?str(data.region,"province or region",80,false):null,kind==="Office"?timeZone(data.timeZone||"America/Edmonton"):null),
+        target,actor.org_id,kind,str(data.name,"name",100),kind==="Office"?country(data.country):null,
+        kind==="Office"?str(data.region,"province or region",80,false):null,kind==="Office"?timeZone(data.timeZone):null),
       audit(db,actor,"Organization unit created","unit",target),
     ]);
     return json({ ok:true, message:`${kind} added.` },201);

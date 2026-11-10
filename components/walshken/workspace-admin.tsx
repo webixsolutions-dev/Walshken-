@@ -27,9 +27,9 @@ function Employees({actor,data,refresh,rolesOnly}:{actor:Viewer;data:ViewData;re
         field("name","Full name"),field("email","Work email","email"),field("employeeNo","Employee ID"),field("title","Position","text",false),
         {name:"role",label:"Staff role",options:roleChoices,value:"employee",required:true},
         ...["Department","Division","Office"].map((kind)=>({name:kind.toLowerCase(),label:kind,options:options((data.units??[]).filter((r)=>r.kind===kind))})),
-        {name:"manager",label:"Reporting manager",options:options(data.staff??[])},{name:"country",label:"Country",options:countryChoices,value:"CA",required:true},
-        {name:"jurisdiction",label:"Employment jurisdiction",value:"CA-AB",required:true},
-        {name:"timeZone",label:"IANA time zone",value:"America/Edmonton",required:true},
+        {name:"manager",label:"Reporting manager",options:options(data.staff??[])},{name:"country",label:"Country",options:countryChoices,required:true},
+        {name:"jurisdiction",label:"Employment jurisdiction",placeholder:"Enter the applicable jurisdiction code",required:true},
+        {name:"timeZone",label:"IANA time zone",placeholder:"For example, Europe/London",required:true},
         {name:"employmentType",label:"Employment type",options:companyTypes,value:"Full-time",required:true},
         field("hireDate","Original hire date","date",false),field("contractStart","Contract start date","date",false),field("phone","Contact number","tel",false),
         {name:"expectedHours",label:"Expected weekly hours",type:"number",value:40,min:0,max:80},
@@ -167,13 +167,13 @@ export function AdminViews({section,actor,data,refresh,setQuery}:{section:string
   if(section==="departments")return <Panel title="Organization units">
     <Disclosure title="Add a department, division or office"><ActionForm path="organization/add" fields={[
       {name:"kind",label:"Unit type",options:["Department","Division","Office"],required:true},field("name","Name"),
-      {name:"country",label:"Office country",options:countryChoices,value:"CA"},{name:"timeZone",label:"Office time zone",value:"America/Edmonton"},field("region","Province or region","text",false),
+      {name:"country",label:"Office country",options:countryChoices},{name:"timeZone",label:"Office time zone",placeholder:"For example, Europe/London"},field("region","Province or region","text",false),
     ]} submit="Create unit" refresh={refresh}/></Disclosure>
     <Table rows={rows} columns={[column("name","Name"),column("kind","Type"),column("country","Country"),column("region","Region"),column("time_zone","Time zone")]}/>
   </Panel>;
   if(section==="holidays")return <Panel title="Holiday calendar" note="Calendar entries are references for scheduling. Statutory pay is determined by validated jurisdiction rules.">
     <Disclosure title="Add a holiday"><ActionForm path="holidays/add" fields={[
-      field("name","Holiday name"),field("onDate","Holiday date","date"),{name:"jurisdiction",label:"Jurisdiction code",value:"CA-AB",required:true},
+      field("name","Holiday name"),field("onDate","Holiday date","date"),{name:"jurisdiction",label:"Jurisdiction code",required:true},
       {name:"type",label:"Type",options:["Company observance","Statutory calendar reference"],required:true},
     ]} submit="Add calendar entry" refresh={refresh}/></Disclosure>
     <Table rows={rows} columns={[column("name","Name"),dateColumn("on_date","Date"),column("jurisdiction","Jurisdiction"),column("type","Type")]}/>

@@ -22,10 +22,17 @@ Open the corporate homepage at `/`, the service directory at `/services`, countr
 - The company site can render the initial catalog while the database is pending. Staff access and inquiry submissions require the database.
 - The Data API can stay disabled. Only the server connects to PostgreSQL. The initial schema enables RLS and revokes Data API role grants on the workspace tables. Review the database runtime grants before handling production records.
 
+## Market publishing and search
+
+- Use Admin → Website services to maintain homepage copy and published services. Use Admin → Country availability to enable each launch market, set contact details, and publish available services and destinations. Visitors can search any supported country by name or ISO code.
+- The public site lists a country as available when it has a published service. Unlaunched countries can receive expressions of interest once the database is connected.
+- For the production launch, set `WALSHKEN_SITE_URL` to the verified HTTPS origin and `WALSHKEN_INDEX_PUBLIC=1` in Production. Redeploy, then verify `/robots.txt` and `/sitemap.xml` on the custom domain. The sitemap lists canonical public pages and eligible published markets. Preview and staff pages carry noindex directives.
+- Set provider credentials in the protected workspace under Admin → Integrations. Change your workspace password under My profile. The password change ends existing sessions.
+
 ## Implemented in this build
 
 - Country autocomplete with ISO codes, market and service availability, configurable destinations, public inquiries and launch interest.
-- Account activation, scoped roles, password sign-in, expiring server-side sessions, account suspension and admin-issued reset codes.
+- Account activation, scoped roles, password sign-in, expiring server-side sessions, account suspension, self-service password changes and admin-issued reset codes.
 - Profiles, organization units, projects, tasks and discussions, work calendars, shifts, attendance and breaks, timesheet submission and review, leave requests, notifications.
 - Membership-scoped messages, private file upload and access grants, meeting schedules, a Daily room adapter, encrypted provider settings and administrative audit history.
 - Effective-dated pay rates and base hourly estimates from approved time. Estimates omit overtime, holiday pay, taxes and deductions. Overnight attendance is supported and overnight payroll records require separate review.
