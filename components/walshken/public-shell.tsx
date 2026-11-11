@@ -4,7 +4,7 @@ import { Brand } from "./brand";
 import { PublicNav } from "./public-nav";
 
 export function PublicShell({ children }: { children: ReactNode }) {
-  return <>
+  return <div className="public-shell">
     <a className="skip-link" href="#main">Skip to content</a>
     <header className="corporate-header"><div className="public-wrap topbar"><Brand/><PublicNav/></div></header>
     <main id="main" tabIndex={-1}>{children}</main>
@@ -20,5 +20,5 @@ export function PublicShell({ children }: { children: ReactNode }) {
         <small>© {new Date().getUTCFullYear()} Walshken</small>
       </div>
     </footer>
-  </>;
+  </div>;
 }
