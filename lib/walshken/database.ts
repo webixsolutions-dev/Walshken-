@@ -1,6 +1,7 @@
 import { readFile, readdir, mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import postgres from "postgres";
+import { Pool, type PoolClient } from "pg";
+import { attachDatabasePool } from "@vercel/functions";
 import type { PGlite } from "@electric-sql/pglite";
 
 type Result = { rows: unknown[]; count: number };
@@ -11,16 +12,46 @@ type Adapter = {
 type Statement = { sql: string; values: unknown[]; first: <T>() => Promise<T | null>; all: <T>() => Promise<{ results: T[] }>; run: () => Promise<Result> };
 const state = globalThis as typeof globalThis & { walshkenPg?: Adapter; walshkenLocal?: Promise<Adapter> };
 
-function postgresAdapter(connection: ReturnType<typeof postgres>): Adapter {
+async function postgresQuery(connection: Pool | PoolClient, statement: string, values: unknown[]): Promise<Result> {
+  const result = await connection.query(statement, values);
+  return { rows: result.rows, count: result.rowCount ?? 0 };
+}
+
+function postgresAdapter(pool: Pool): Adapter {
   return {
-    async query(sql, values) {
-      const rows = await connection.unsafe(sql, values as never[]);
-      return { rows: [...rows], count: rows.count };
-    },
+    query: (statement, values) => postgresQuery(pool, statement, values),
     async transaction(work) {
-      return await connection.begin((transaction) => work(postgresAdapter(transaction as unknown as ReturnType<typeof postgres>))) as Awaited<ReturnType<typeof work>>;
+      const client = await pool.connect();
+      const transaction: Adapter = {
+        query: (statement, values) => postgresQuery(client, statement, values),
+        transaction: (nestedWork) => nestedWork(transaction),
+      };
+      try {
+        await client.query("BEGIN");
+        const result = await work(transaction);
+        await client.query("COMMIT");
+        return result;
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      } finally {
+        client.release();
+      }
     },
   };
+}
+
+function pooledPostgres(url: string) {
+  const pool = new Pool({
+    connectionString: url,
+    max: 3,
+    connectionTimeoutMillis: 8_000,
+    idleTimeoutMillis: 5_000,
+    maxLifetimeSeconds: 60,
+  });
+  pool.on("error", (error) => console.error("Walshken idle database connection failed", error.name));
+  attachDatabasePool(pool);
+  return postgresAdapter(pool);
 }
 
 type PgliteConnection = Pick<PGlite, "query"> & Partial<Pick<PGlite, "transaction">>;
@@ -80,7 +111,7 @@ export class Db {
 export function workspaceDatabase() {
   const url = process.env.DATABASE_URL;
   if (url) {
-    return new Db(async () => state.walshkenPg ??= postgresAdapter(postgres(url, { max: 3, prepare: false, idle_timeout: 20, connect_timeout: 8 })));
+    return new Db(async () => state.walshkenPg ??= pooledPostgres(url));
   }
   if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
     return new Db(() => state.walshkenLocal ??= localAdapter());
