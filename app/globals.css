@@ -400,3 +400,37 @@ section[id],form[id]{scroll-margin-top:26px}
   .customer-profile-grid{grid-template-columns:minmax(0,1fr)}
   .footer-compact{align-items:flex-start;flex-direction:column}
 }
+
+/* Red theme preview for the public site and customer account. */
+.public-shell {
+  --ink: #28151b;
+  --muted: #685158;
+  --blue: #b71934;
+  --blue-dark: #94132a;
+  --cloud: #fff0f2;
+  --line: #ebd4da;
+  --red-tint: #fff8f8;
+  --red-hover: #fce7eb;
+  color: var(--ink);
+}
+.public-shell :focus-visible, .public-shell .explorer-field:focus-within { outline-color: var(--blue); }
+.public-shell .corporate-header { border-color: var(--line); }
+.public-shell .public-nav, .public-shell :is(.customer-form,.explorer,.inquiry-form) label { color: var(--ink); }
+.public-shell .btn-blue { box-shadow: 0 6px 13px #b7193424; }
+.public-shell .btn-outline:hover:not(:disabled), .public-shell .service-card:hover { border-color: #d9a3af; }
+.public-shell .btn-white { color: var(--blue-dark); }
+.public-shell .brand img, .public-shell img[src="/walshken-market-globe.png"] { filter: hue-rotate(132deg); }
+.public-shell .section-kicker > span { background: var(--blue); }
+.public-shell :is(.home-services,.inner-hero) { background: linear-gradient(115deg,#fffafa,#fcecf0); border-color: var(--line); }
+.public-shell :is(.corporate-footer,.customer-access,.customer-area,.customer-empty,.customer-request[open] summary,.contact-form-shell>.inquiry-form) { background: var(--red-tint); }
+.public-shell :is(.icon-tile,.service-last,.customer-status,.market-contact,.customer-request-update) { background: var(--cloud); }
+.public-shell :is(.service-card,.card-arrow,.contact-assistant,.inner-hero-mark>svg,.country-card,.inner-orbit) { border-color: var(--line); }
+.public-shell :is(.inner-hero-mark>svg,.contact-assistant,.explorer) { box-shadow: 0 12px 30px #82182d0d; }
+.public-shell :is(.explorer-field,.customer-form input,.customer-form select,.customer-form textarea) { background: #fffcfc; }
+.public-shell :is(.country-options button.highlighted,.country-options button:hover,.customer-sidebar nav a[aria-current=page],.customer-sidebar nav a:hover,.customer-form input[readonly]) { background: var(--red-hover); }
+.public-shell .public-art { background: radial-gradient(ellipse at 50% 73%,var(--cloud),transparent 70%); }
+.public-shell .market-band { background: linear-gradient(111deg,#43101e,#79142b 64%,#a51732); }
+.public-shell :is(.market-band .section-kicker,.market-globe) { color: #ffcad5; }
+.public-shell .market-copy p { color: #ffe6eb; }
+.public-shell .customer-status { color: var(--blue-dark); }
+.public-shell .customer-status.is-resolved { background: #e7f7ee; color: #176947; }
