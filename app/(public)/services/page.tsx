@@ -11,7 +11,7 @@ export const metadata = publicMetadata("/services", "Services",
 
 export default async function ServicesPage() {
   const catalog = await loadCatalog();
-  return <PublicShell services={catalog.services}>
+  return <PublicShell>
     <PageHero label="OUR DIVISIONS" title="Professional services" icon="services"
       description="Explore Walshken’s divisions for business, travel, education and more. Choose a service to see where it’s available and how to get in touch.">
       <Link className="btn btn-blue" href="#divisions">Browse divisions <Icon name="right" size={17}/></Link>
@@ -21,8 +21,7 @@ export default async function ServicesPage() {
       <div className="section-lead"><div><div className="section-kicker"><span/> FIND YOUR DIVISION</div><h2>Start with what you need.</h2></div></div>
       <ServiceGrid services={catalog.services} contactCard/>
       <section className="about-story service-story" aria-labelledby="services-next-step">
-        <div className="about-photo"><img src="/walshken-service-advisers.webp" width="960" height="640" loading="lazy"
-          alt="Two advisers reviewing project notes together"/></div>
+        <div className="public-art"><img src="/walshken-service-adviser.png" width="800" height="533" loading="lazy" alt=""/></div>
         <div><div className="section-kicker"><span/> YOUR NEXT STEP</div><h2 id="services-next-step">Find the right team for your question.</h2>
           <p>Start with a division, then choose the country where you need help. If your question covers more than one service, send a general inquiry.</p>
           <Link className="text-link story-link" href="/contact">Ask Walshken <Icon name="right" size={16}/></Link>

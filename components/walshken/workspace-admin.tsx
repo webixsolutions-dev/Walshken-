@@ -1,5 +1,6 @@
 "use client";
 import { useState, type FormEvent } from "react";
+import { inquiryStatuses } from "@/lib/walshken/customer-status";
 import { countries, countryName, divisions, providers, roleNames, roles, type Role } from "@/lib/walshken/catalog";
 import { Icon } from "./brand";
 import type { Viewer } from "./workspace";
@@ -55,6 +56,8 @@ function Employees({actor,data,refresh,rolesOnly}:{actor:Viewer;data:ViewData;re
 
 function Website({data,refresh}:{data:ViewData;refresh:()=>void}){
   const [selected,setSelected]=useState("");
+  const [selectedInquiry,setSelectedInquiry]=useState("");
+  const inquiry=data.inquiries?.find((row)=>row.id===selectedInquiry);
   const item=data.rows?.find((r)=>r.id===selected);
   const current=data.catalog?.content;
   const serviceFields:Field[]=[
@@ -82,7 +85,17 @@ function Website({data,refresh}:{data:ViewData;refresh:()=>void}){
     ]} submit="Save homepage copy" refresh={refresh} reset={false}/></Panel>}
     <Panel title="Public inquiries and launch interest"><Table rows={data.inquiries??[]} columns={[
       dateColumn("created_at","Received"),column("kind","Type"),column("name","Name"),column("email","Email"),column("country","Country"),column("message","Message"),
-    ]} empty="No inquiries received"/></Panel>
+      {key:"reference",title:"Reference",render:(row)=>row.customer_request?value(row,"id").slice(0,8).toUpperCase():null},
+      {key:"status",title:"Status",render:(row)=>row.customer_request?<Status>{row.status}</Status>:null},
+    ]} actions={(row)=>row.customer_request?<button className="btn btn-outline btn-small" type="button"
+      onClick={()=>setSelectedInquiry(value(row,"id"))}>Update request</button>:null} empty="No inquiries received"/>
+      {inquiry&&<div className="nested-panel"><h3>Update request from {inquiry.name}</h3>
+        <ActionForm key={selectedInquiry} path="website/inquiry" fields={[
+          {name:"status",label:"Status",options:inquiryStatuses.map((status)=>[status,status] as const),value:inquiry.status,required:true},
+          {name:"update",label:"Update visible to the customer",type:"textarea",value:inquiry.customer_update,max:2000},
+        ]} extra={{id:selectedInquiry}} submit="Save customer update" refresh={refresh} reset={false}/>
+      </div>}
+    </Panel>
   </>;
 }
 

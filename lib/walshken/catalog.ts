@@ -28,7 +28,7 @@ export const divisions = [
 ] as const;
 
 export const homepage = {
-  title: "Find the right professional support, wherever you are.",
+  title: "What can we help you with?",
   description: "Explore services for your business and personal plans. Choose what you need, check availability in your country, and get in touch with the right team.",
   about: "Walshken brings specialist divisions together so people and businesses can find professional support in one place. Services and contact options are published by country as they become available.",
 };

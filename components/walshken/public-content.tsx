@@ -5,8 +5,8 @@ import { Icon } from "./brand";
 
 type Crumb = { label: string; href: string };
 
-export function PageHero({ label, title, description, icon, parent, children }: {
-  label: string; title: string; description: string; icon: string; parent?: Crumb; children?: ReactNode;
+export function PageHero({ label, title, description, icon, parent, children, visual }: {
+  label: string; title: string; description: string; icon: string; parent?: Crumb; children?: ReactNode; visual?: ReactNode;
 }) {
   return <section className="inner-hero">
     <div className="public-wrap">
@@ -15,28 +15,30 @@ export function PageHero({ label, title, description, icon, parent, children }: 
         {parent && <><Link href={parent.href}>{parent.label}</Link><Icon name="next" size={14}/></>}
         <span aria-current="page">{title}</span>
       </nav>
-      <div className="inner-hero-grid">
+      <div className={visual ? "inner-hero-grid has-visual" : "inner-hero-grid"}>
         <div className="inner-hero-copy">
           <div className="section-kicker"><span/> {label}</div>
           <h1>{title}</h1><p>{description}</p>
           {children && <div className="inner-hero-actions">{children}</div>}
         </div>
-        <div className="inner-hero-mark" aria-hidden="true"><span className="inner-orbit"/><span className="inner-orbit inner-orbit-large"/><Icon name={icon} size={54}/></div>
+        {visual ?? <div className="inner-hero-mark" aria-hidden="true"><span className="inner-orbit"/><span className="inner-orbit inner-orbit-large"/><Icon name={icon} size={54}/></div>}
       </div>
     </div>
   </section>;
 }
 
-export function ServiceGrid({ services, contactCard = false }: { services: SiteService[]; contactCard?: boolean }) {
+export function ServiceGrid({ services, contactCard = false, heading: Heading = "h3" }: {
+  services: SiteService[]; contactCard?: boolean; heading?: "h2" | "h3";
+}) {
   if (!services.length) return <p className="catalog-empty">The service catalog is being updated. <Link className="text-link" href="/contact">Contact Walshken</Link></p>;
   return <div className="service-grid">
     {services.map((service) => <Link className="service-card service-card-link" key={service.id} href={`/services/${encodeURIComponent(service.id)}`}>
       <div className="service-card-top"><span className="icon-tile"><Icon name={service.icon} size={23}/></span>
         <span className="icon-button card-arrow"><Icon name="external" size={18}/></span></div>
-      <h3>{service.name}</h3><p>{service.description}</p>
+      <Heading>{service.name}</Heading><p>{service.description}</p>
     </Link>)}
     {contactCard && <Link className="service-card service-last" href="/contact">
-      <div><div className="section-kicker">HERE TO HELP</div><h3>Have a question?</h3><p>Tell us what you need and we’ll point you to the right division.</p></div>
+      <div><Heading>Have a question?</Heading><p>Tell us what you need and we’ll point you to the right division.</p></div>
       <span className="circle-arrow"><Icon name="right" size={19}/></span>
     </Link>}
   </div>;

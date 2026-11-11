@@ -1,21 +1,8 @@
-import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
+import { passwordHash, passwordMatches } from "./passwords";
 import { divisions, homepage } from "./catalog";
 import { type Actor, type Db, audit, database, digest, email, expiredSession, fail, id, issueSession, now, one, orgId, run, stmt, str, throttle } from "./server";
 
-const dummySalt = Buffer.from("f9a6d1632d6ddcb3c13f6b75ba49b1ee", "hex");
-
-async function passwordHash(password: string, salt = randomBytes(16)) {
-  const hash = await new Promise<Buffer>((resolve,reject) => scrypt(password,salt,64,{N:32768,r:8,p:3,maxmem:67108864},(error,key)=>error?reject(error):resolve(key)));
-  return `${salt.toString("hex")}:${hash.toString("hex")}`;
-}
-async function match(password: string, stored?: string) {
-  const salt = stored?.split(":")[0];
-  const computed = await passwordHash(password, salt ? Buffer.from(salt, "hex") : dummySalt);
-  if (!stored) return false;
-  const a = Buffer.from(computed);
-  const b = Buffer.from(stored);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
 async function codeMatches(input: string, expected: string) {
   const [a,b] = await Promise.all([digest(input),digest(expected)]);
   return timingSafeEqual(Buffer.from(a), Buffer.from(b));
@@ -32,7 +19,7 @@ export async function login(request: Request, action: string, data: Record<strin
   await throttle(db, `login-email:${mailbox}`, 6, 300_000);
   if (action === "login") {
     const actor = await one<Actor & { password_hash: string }>(db, "SELECT e.*,c.password_hash FROM employees e JOIN credentials c ON c.employee_id=e.id WHERE e.email=?", mailbox);
-    if (!await match(password, actor?.password_hash) || !actor || actor.status !== "Active") return fail(401, "Email or password is incorrect.");
+    if (!await passwordMatches(password, actor?.password_hash) || !actor || actor.status !== "Active") return fail(401, "Email or password is incorrect.");
     return issueSession(request, db, actor, actor.password_hash);
   }
 
@@ -95,7 +82,7 @@ export async function changePassword(request: Request, db: Db, actor: Actor, dat
   const changed = await passwordHash(newPassword);
   await db.transaction(async (tx) => {
     const credential = await one<{ password_hash: string }>(tx, "SELECT password_hash FROM credentials WHERE employee_id=? FOR UPDATE", actor.id);
-    if (!credential || !await match(currentPassword, credential.password_hash)) return fail(401, "Current password is incorrect.");
+    if (!credential || !await passwordMatches(currentPassword, credential.password_hash)) return fail(401, "Current password is incorrect.");
     const at = now();
     await run(tx, "UPDATE credentials SET password_hash=?,updated_at=? WHERE employee_id=?", changed, at, actor.id);
     await run(tx, "UPDATE sessions SET ended_at=? WHERE employee_id=? AND ended_at IS NULL", at, actor.id);

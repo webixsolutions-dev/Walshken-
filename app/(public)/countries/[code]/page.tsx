@@ -33,7 +33,7 @@ export default async function CountryPage({ params, searchParams }: Props) {
   const available = new Map(catalog.availability.filter((row) => row.country === country.code && row.enabled === 1)
     .map((row) => [row.service_id, row.destination]));
 
-  return <PublicShell services={catalog.services}>
+  return <PublicShell>
     <PageHero label={active ? "SERVICE AVAILABILITY" : "COMING SOON"} title={country.name} icon="pin"
       parent={{ label: "Countries", href: "/countries" }}
       description={active ? `See current availability for ${selected?.name ?? "Walshken’s service divisions"} in ${country.name}.`

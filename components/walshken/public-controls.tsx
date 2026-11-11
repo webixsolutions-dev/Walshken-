@@ -90,12 +90,12 @@ export function InquiryForm({ service, country, services, enabled, notify = fals
   </form>;
 }
 
-export function ServiceExplorer({ services, service = "", floating = false }: {
-  services: SiteService[]; service?: string; floating?: boolean;
+export function ServiceExplorer({ services, service = "" }: {
+  services: SiteService[]; service?: string;
 }) {
   const serviceId = useId();
 
-  return <form id="explore" className={floating ? "explorer" : "explorer explorer-inline"} action="/countries" method="get">
+  return <form id="explore" className="explorer" action="/countries" method="get">
     <div className="explore-intro"><span className="icon-tile"><Icon name="compass" size={23}/></span>
       <div><strong>Find a service</strong><small>Explore by country and division.</small></div></div>
     <div className="service-field"><label htmlFor={serviceId}>Professional service</label><div className="explorer-field">
