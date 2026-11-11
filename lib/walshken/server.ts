@@ -121,11 +121,11 @@ export async function payload(request: Request) {
 export async function digest(input: string) {
   return Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input)))).map((n) => n.toString(16).padStart(2, "0")).join("");
 }
-export function cookieValue(header: string | null) {
-  return header?.split(/;\s*/).find((item) => item.startsWith(`${sessionCookie}=`))?.slice(sessionCookie.length + 1) ?? "";
+export function cookieValue(header: string | null, name = sessionCookie) {
+  return header?.split(/;\s*/).find((item) => item.startsWith(`${name}=`))?.slice(name.length + 1) ?? "";
 }
-function sessionSet(request: Request, value: string, maxAge: number) {
-  return `${sessionCookie}=${value}; Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Strict${requestProtocol(request) === "https:" ? "; Secure" : ""}`;
+export function sessionSet(request: Request, value: string, maxAge: number, name = sessionCookie) {
+  return `${name}=${value}; Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Strict${requestProtocol(request) === "https:" ? "; Secure" : ""}`;
 }
 export async function actorFor(db: Db, token: string): Promise<Actor | null> {
   if (!/^[0-9a-f-]{72}$/.test(token)) return null;

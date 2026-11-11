@@ -12,5 +12,5 @@ export async function generateMetadata() {
 
 export default async function HomePage() {
   const catalog = await loadCatalog();
-  return <PublicShell services={catalog.services}><Corporate catalog={catalog}/></PublicShell>;
+  return <PublicShell><Corporate catalog={catalog}/></PublicShell>;
 }

@@ -17,14 +17,13 @@ const steps = [
 
 export default async function AboutPage() {
   const catalog = await loadCatalog();
-  return <PublicShell services={catalog.services}>
+  return <PublicShell>
     <PageHero label="ABOUT WALSHKEN" title="One group, many specialties." description={catalog.content.about} icon="building">
       <Link className="btn btn-blue" href="/services">Explore our divisions <Icon name="right" size={17}/></Link>
     </PageHero>
     <div className="public-wrap inner-section">
       <section className="about-story" aria-labelledby="about-story">
-        <div className="about-photo"><img src="/walshken-colleagues.webp" width="960" height="640" loading="lazy"
-          alt="Three colleagues in conversation in a bright office atrium"/></div>
+        <div className="public-art"><img src="/walshken-about-team.png" width="800" height="533" loading="lazy" alt=""/></div>
         <div><div className="section-kicker"><span/> HOW WALSHKEN IS ORGANIZED</div><h2 id="about-story">A starting point for your next step.</h2>
           <p>Every division has its own area of focus. The service directory helps you narrow down where to start, and the country pages show which divisions are available in your market.</p>
           <p>When your question spans more than one area, the contact page lets you describe the full situation in one place.</p>

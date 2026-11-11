@@ -23,7 +23,7 @@ export default async function ServicePage({ params }: Props) {
   if (!item) notFound();
   const topics = serviceTopics[item.id];
   const markets = marketList(catalog, item.id);
-  return <PublicShell services={catalog.services}>
+  return <PublicShell>
     <PageHero label="SERVICE DIVISION" title={item.name} description={item.description} icon={item.icon}
       parent={{ label: "Services", href: "/services" }}>
       <Link className="btn btn-blue" href="#availability">Check availability <Icon name="right" size={17}/></Link>

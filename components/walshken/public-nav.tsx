@@ -32,8 +32,10 @@ export function PublicNav() {
         return <Link key={href} href={href} className={active ? "current" : undefined} aria-current={exact ? "page" : undefined}
           onClick={() => setOpen(false)}>{label}</Link>;
       })}
-      <Link className="btn btn-outline staff-entry" href="/staff" prefetch={false} onClick={() => setOpen(false)}>
-        <Icon name="lock" size={15}/> Staff login <Icon name="external" size={15}/>
+      <Link className="staff-link" href="/staff" prefetch={false} onClick={() => setOpen(false)}>Staff login</Link>
+      <Link className="btn btn-blue customer-entry" href="/customer" prefetch={false}
+        aria-current={current.startsWith("/customer") ? "page" : undefined} onClick={() => setOpen(false)}>
+        <Icon name="user" size={17}/> Customer account
       </Link>
     </nav>
   </div>;

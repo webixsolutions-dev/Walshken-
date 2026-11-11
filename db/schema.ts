@@ -1,4 +1,4 @@
-import { bigint, integer, pgTable, text, uniqueIndex, index, customType } from "drizzle-orm/pg-core";
+import { bigint, integer, pgTable, text, check, uniqueIndex, index, customType } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 const key = () => text("id").primaryKey().notNull();
@@ -46,10 +46,24 @@ export const availability = pgTable("availability", {
   destination: text("destination").notNull().default(""),
 }, (t) => [uniqueIndex("service_market_unique").on(t.country, t.serviceId)]);
 export const siteContent = pgTable("site_content", { id: key(), title: text("title").notNull(), description: text("description").notNull(), about: text("about").notNull() });
+export const customers = pgTable("customers", {
+  id: key(), name: text("name").notNull(), email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(), createdAt: stamp(),
+});
+export const customerSessions = pgTable("customer_sessions", {
+  id: key(), customerId: text("customer_id").notNull().references(() => customers.id, { onDelete: "cascade" }),
+  expiresAt: text("expires_at").notNull(),
+}, (t) => [index("customer_sessions_account_idx").on(t.customerId, t.expiresAt)]);
 export const inquiries = pgTable("inquiries", {
   id: key(), kind: text("kind").notNull(), name: text("name"), email: text("email").notNull(),
   country: text("country").notNull(), service: text("service"), message: text("message"), createdAt: stamp(),
-}, (t) => [index("inquiry_email_time").on(t.email, t.createdAt)]);
+  customerId: text("customer_id").references(() => customers.id),
+  status: text("status").notNull().default("Received"), customerUpdate: text("customer_update"), updatedAt: text("updated_at"),
+}, (t) => [
+  index("inquiry_email_time").on(t.email, t.createdAt),
+  index("inquiry_customer_time").on(t.customerId, t.createdAt, t.id),
+  check("inquiry_status_check", sql`${t.status} in ('Received', 'In review', 'Resolved')`),
+]);
 export const rateLimits = pgTable("rate_limits", { id: key(), hits: integer("hits").notNull(), expiresAt: bigint("expires_at", {mode:"number"}).notNull() });
 
 export const projects = pgTable("projects", {

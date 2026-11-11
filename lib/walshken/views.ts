@@ -137,7 +137,7 @@ export async function view(db:Db,actor:Actor,section:string,params:URLSearchPara
     return json({catalog:await loadCatalog(),
       rows:await all(db,"SELECT id,name,description,icon,sort,archived FROM services ORDER BY sort,id"),
       availability:await all(db,"SELECT country,service_id,enabled,destination FROM availability ORDER BY country,service_id"),
-      inquiries:section==="website"?await all(db,"SELECT id,kind,name,email,country,service,message,created_at FROM inquiries ORDER BY created_at DESC LIMIT 120"):[],
+      inquiries:section==="website"?await all(db,"SELECT id,kind,name,email,country,service,message,created_at,status,customer_update,CASE WHEN customer_id IS NOT NULL THEN 1 ELSE 0 END AS customer_request FROM inquiries ORDER BY created_at DESC LIMIT 120"):[],
     });
   }
   if(section==="integrations") return json({rows:await all(db,"SELECT id,enabled,updated_at FROM integrations ORDER BY id"),secureStorage:Boolean(process.env.WALSHKEN_INTEGRATION_KEY)});

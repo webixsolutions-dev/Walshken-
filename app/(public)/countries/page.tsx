@@ -16,9 +16,10 @@ export default async function CountriesPage({ searchParams }: { searchParams: Pu
   const service = findService(catalog, query.service);
   if (country) redirect(countryPath(country.code, service?.id));
   const markets = marketList(catalog, service?.id);
-  return <PublicShell services={catalog.services}>
+  return <PublicShell>
     <PageHero label="OUR MARKETS" title="Countries & territories" icon="globe"
-      description="Search by country name or ISO code to check services, local contact options, and launch updates."/>
+      description="Search by country name or ISO code to check services, local contact options, and launch updates."
+      visual={<img className="country-hero-art" src="/walshken-market-globe.png" width="640" height="328" alt=""/>}/>
     <div className="public-wrap inner-section">
       <ServiceExplorer services={catalog.services} service={service?.id}/>
       {query.country && <p className="form-error country-search-error" role="status">Choose a country or territory from the search results.</p>}

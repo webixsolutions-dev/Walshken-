@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { inquiryStatuses } from "./customer-status";
 import { divisions, providers, roles } from "./catalog";
 import {
   all, audit, canManage, canPayroll, canSuper, country, date, destination, digest, email, encryptSettings,
@@ -86,6 +87,18 @@ export async function adminAction(db: Db, actor: Actor, area: string, action: st
   }
   if (area === "website") {
     requireSuper(actor);
+    if (action === "inquiry") {
+      const target = str(data.id, "inquiry", 80);
+      const status = pick(data.status, inquiryStatuses, "request status");
+      const update = str(data.update, "customer update", 2000, false);
+      await db.transaction(async (tx) => {
+        const result = await run(tx, "UPDATE inquiries SET status=?,customer_update=?,updated_at=? WHERE id=? AND customer_id IS NOT NULL AND kind='inquiry'",
+          status, update || null, now(), target);
+        if (!result.count) return fail(404, "Customer request not found.");
+        await audit(tx, actor, "Customer request updated", "inquiry", target).run();
+      });
+      return json({ ok: true, message: "Customer request updated." });
+    }
     if (action === "copy") {
       await db.batch([
         stmt(db,`INSERT INTO site_content (id,title,description,about) VALUES ('home',?,?,?)
