@@ -296,8 +296,9 @@ section[id],form[id]{scroll-margin-top:26px}
 }
 
 /* Public pages and customer account */
+.public-shell{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto;min-height:100vh;min-height:100dvh}
+.public-shell>main:has(>.customer-access,>.customer-area){display:grid}
 .public-nav{gap:clamp(14px,2vw,29px)}
-.public-nav .staff-link{font-size:13px;white-space:nowrap}
 .public-nav .customer-entry{min-height:42px;padding-inline:14px}
 .home-services{background:linear-gradient(116deg,#f7f9ff,#edf4ff);padding:clamp(24px,4vw,52px) 0 clamp(26px,4vw,46px)}
 .home-services-lead{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr);align-items:center;gap:28px;margin-bottom:clamp(16px,3vw,30px)}
@@ -324,6 +325,7 @@ section[id],form[id]{scroll-margin-top:26px}
 .contact-assistant p{margin:11px 0;color:var(--muted)}
 #inquiry-heading{scroll-margin-top:24px}
 .customer-access,.customer-area{background:#f5f8ff}
+.customer-access{display:grid;align-items:center}
 .customer-access-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);align-items:center;gap:clamp(24px,6vw,88px);max-width:1030px;padding-block:clamp(30px,6vw,80px)}
 .customer-access-copy p,.customer-heading p{font-size:16px;color:var(--muted);overflow-wrap:anywhere}
 .customer-access-copy img{width:min(85%,350px);height:auto;margin-top:24px}
